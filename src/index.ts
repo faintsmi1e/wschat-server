@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import http from 'http';
 import {Server} from 'socket.io';
 import RoomRouter from './RoomRouter'
+import roomHandlers from './handlers/roomHandlers';
 
 const app = express();
 const server = new http.Server(app);
@@ -21,6 +22,7 @@ app.use(cors());
 app.use(express.json());
 io.on('connection', (socket) => {
   console.log('user connected', socket.id);
+  roomHandlers(io, socket);
 });
 app.use('/api', RoomRouter);
 
