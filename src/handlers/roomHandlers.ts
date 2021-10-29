@@ -1,4 +1,3 @@
-import { SocketAddress } from 'net';
 import { Server, Socket } from 'socket.io';
 import Room from '../Room';
 
@@ -19,7 +18,8 @@ const roomHandlers = (io: Server, socket: Socket) => {
       room,
       { new: true }
     );
-    socket.to(data.roomName).emit('room:joined', room.users);
+    
+    io.sockets.in(data.roomName).emit('room:setUsers', room.users);
   });
 
   socket.on('disconnect', async () => {
@@ -31,13 +31,15 @@ const roomHandlers = (io: Server, socket: Socket) => {
         const usersLegth = rooms[i].users.length;
         for (let j = 0; j < usersLegth; j++) {
           const user = rooms[i].users[j];
-
+         
           if (user.id === id) {
+            
             rooms[i].users.splice(j, 1);
             return [rooms[i].roomName, rooms[i]];
           }
         }
       }
+      return [false, null];
     }
     const [roomName, newRoom] = findRoomName(rooms, id);
     if (roomName) {
@@ -50,6 +52,19 @@ const roomHandlers = (io: Server, socket: Socket) => {
       { new: true }
     );
   });
+
+  socket.on('room:newMessage', async ({roomName, userName, text}) => {
+    let room = await Room.find({ roomName: roomName }).exec();
+    const message = {
+      userName,
+      text,
+    }
+    console.log(message)
+    console.log(room[0].messages)
+    console.log(roomName)
+    room[0].messages.push(message)
+    socket.to(roomName).emit('room:newMessage', message);
+  })
 };
 
 export default roomHandlers;

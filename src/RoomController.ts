@@ -19,10 +19,13 @@ class RoomController {
     }
   }
 
-  async getAll(req: express.Request, res: express.Response) {
+  async get(req: express.Request, res: express.Response) {
     try {
-      const events = await Room.find();
-      return res.json(events);
+      
+      const {id} = req.params;
+      const room = await Room.find({roomName: id});
+      
+      return res.json(room[0]);
     } catch (e) {
       res.status(500).json(e);
     }

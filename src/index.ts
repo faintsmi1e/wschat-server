@@ -5,6 +5,7 @@ import http from 'http';
 import {Server} from 'socket.io';
 import RoomRouter from './RoomRouter'
 import roomHandlers from './handlers/roomHandlers';
+import messageHandlers from './handlers/messageHandlers';
 
 const app = express();
 const server = new http.Server(app);
@@ -20,9 +21,10 @@ const port = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 io.on('connection', (socket) => {
   
-  
+  messageHandlers(io, socket);
   roomHandlers(io, socket);
 });
 app.use('/api', RoomRouter);
