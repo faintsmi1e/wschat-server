@@ -8,11 +8,11 @@ class RoomController {
       const room = await Room.find({ roomName: roomName }).exec();
       if (!room.length) {
         const newRoom = await Room.create({ roomName });
-        console.log(newRoom);
+        
         return res.json(newRoom);
       }
 
-      console.log(room);
+      
       return res.json(room);
     } catch (e) {
       res.status(500).json(e);

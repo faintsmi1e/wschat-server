@@ -21,7 +21,8 @@ const port = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 io.on('connection', (socket) => {
-  console.log('user connected', socket.id);
+  
+  
   roomHandlers(io, socket);
 });
 app.use('/api', RoomRouter);
