@@ -18,7 +18,7 @@ const roomHandlers = (io: Server, socket: Socket) => {
       room,
       { new: true }
     );
-    
+
     io.sockets.in(data.roomName).emit('room:setUsers', room.users);
   });
 
@@ -31,9 +31,8 @@ const roomHandlers = (io: Server, socket: Socket) => {
         const usersLegth = rooms[i].users.length;
         for (let j = 0; j < usersLegth; j++) {
           const user = rooms[i].users[j];
-         
+
           if (user.id === id) {
-            
             rooms[i].users.splice(j, 1);
             return [rooms[i].roomName, rooms[i]];
           }
@@ -43,7 +42,7 @@ const roomHandlers = (io: Server, socket: Socket) => {
     }
     const [roomName, newRoom] = findRoomName(rooms, id);
     if (roomName) {
-      const users = newRoom.users
+      const users = newRoom.users;
       socket.to(roomName).emit('room:setUsers', users);
     }
     const updatedRoom = await Room.findOneAndUpdate(
@@ -53,18 +52,23 @@ const roomHandlers = (io: Server, socket: Socket) => {
     );
   });
 
-  socket.on('room:newMessage', async ({roomName, userName, text}) => {
+  socket.on('room:newMessage', async ({ roomName, userName, text, date }) => {
     let room = await Room.find({ roomName: roomName }).exec();
     const message = {
       userName,
       text,
-    }
-    console.log(message)
-    console.log(room[0].messages)
-    console.log(roomName)
-    room[0].messages.push(message)
+      date: Date.now(),
+    };
+
+    room[0].messages.push(message);
+    const updatedRoom = await Room.findOneAndUpdate(
+      { roomName: roomName },
+      room[0],
+      { new: true }
+    );
+
     socket.to(roomName).emit('room:newMessage', message);
-  })
+  });
 };
 
 export default roomHandlers;

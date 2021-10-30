@@ -25,6 +25,7 @@ class RoomController {
       const {id} = req.params;
       const room = await Room.find({roomName: id});
       
+      
       return res.json(room[0]);
     } catch (e) {
       res.status(500).json(e);
